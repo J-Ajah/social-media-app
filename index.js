@@ -7,6 +7,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
+const postRoutes = require("./routes/post");
 
 dotenv.config();
 console.log(process.env.MONGO_URL);
@@ -37,6 +38,7 @@ app.use(morgan("common"));
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/post", postRoutes)
 
 
 
