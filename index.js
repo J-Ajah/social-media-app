@@ -38,7 +38,7 @@ app.use(morgan("common"));
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/post", postRoutes)
+app.use("/api/posts", postRoutes)
 
 
 
