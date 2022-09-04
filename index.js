@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cors = require('cors');
 
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
@@ -12,14 +13,6 @@ const postRoutes = require("./routes/post");
 dotenv.config();
 console.log(process.env.MONGO_URL);
 
-// mongoose.connect(
-//   process.env.MONGO_URL,
-//   { },
-//   () => {
-//     console.log("Connected Successfully!");
-//   }
-// );
-
 mongoose.connect(process.env.MONGO_URL)
     .then(()=>{
         console.log("DB connection successful");
@@ -28,11 +21,17 @@ mongoose.connect(process.env.MONGO_URL)
         console.log(err);
     })
 
-// Middleware
 
+
+// Middleware
 app.use(express.json());
 app.use(helmet());
 app.use(morgan("common"));
+
+app.use(cors({
+    origin: 'http://localhost:3000'
+}));
+
 
 
 
