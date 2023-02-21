@@ -20,6 +20,32 @@ router.get("/", async (req, res) => {
   }
 });
 
+// get friends
+router.get("/friends/:userId", async (req, res) => {
+  try {
+    console.log("Id is:", req.params.userId);
+    // Finds the current user by the Id
+    const user = await User.findById(req.params.userId);
+
+    // Returns each friends following posts
+    const friends = await Promise.all(
+      user.followings.map((followerId) => {
+        return User.findById(followerId);
+      })
+    );
+
+    let friendsList = [];
+    // Gets the Id, username and ProfilePicture from the friend.
+    friends.map((friend) => {
+      const { _id, username, profilePicture } = friend;
+      friendsList.push({ _id, username, profilePicture });
+    });
+    res.status(200).json(friendsList);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 // update a user
 router.put("/:id", async (req, res) => {
   // Checks if the id of the user matches the id of the route params
@@ -48,8 +74,8 @@ router.put("/:id", async (req, res) => {
     return res.status(403).json("Sorry you can only update yor account!");
   }
 });
-// delete a user
 
+// delete a user
 router.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body?.isAdmin) {
     try {
@@ -64,7 +90,6 @@ router.delete("/:id", async (req, res) => {
 });
 
 // follow a user
-
 router.put("/:id/follow", async (req, res) => {
   if (req.body.userId !== req.params?.id) {
     try {

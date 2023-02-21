@@ -20,7 +20,6 @@ router.get("/:id", async (req, res) => {
 // create a post
 router.post("/", async (req, res) => {
   const newPost = new Post(req.body);
-
   try {
     const savedPost = await newPost.save();
     res.status(200).json(savedPost);
@@ -31,11 +30,11 @@ router.post("/", async (req, res) => {
 
 // update a post
 router.put("/:id", async (req, res) => {
-  console.log("Routes post is here");
+
   try {
     // fetches the current users Id
     const post = await Post.findById(req.params.id);
-
+    console.log("Post id:", post);
     // Checks the users post id and the request body userId is thesame
     if (post.userId === req.body.userId) {
       await post.updateOne({ $set: req.body });
@@ -71,8 +70,12 @@ router.delete("/:id", async (req, res) => {
 
 router.put("/:id/like", async (req, res) => {
   try {
+    // Find the current post using the params ID that has been passed
     const post = await Post.findById(req.params.id);
 
+    // Check if the post already includes the id of the user in the likes array.
+    // If true it removes it (Meaning the user has disliked the post)
+    // Else he adds it the userId to the likes Array (Meaning that the current user has liked the post).
     if (!post.likes.includes(req.body.userId)) {
       await post.updateOne({ $push: { likes: req.body.userId } });
       res.status(200).json("The post has been liked");
@@ -88,12 +91,14 @@ router.put("/:id/like", async (req, res) => {
 // get timeline posts of users
 router.get("/timeline/:userId", async (req, res) => {
   try {
+
+    console.log("Request params is: ", req.params)
+    // Finds the current user based on the given request id
     const currentUser = await User.findById(req.params.userId);
-
+    // Gets the post of the current user
     const userPosts = await Post.find({ userId: currentUser._id });
-    console.log("============", userPosts);
 
-    //  Fetches the posts of the users that is been followed
+    //  Fetches the posts of the users that the current user is following
     const friendsPosts = await Promise.all(
       currentUser.followings.map((friendId) => {
         return Post.find({ userId: friendId });
