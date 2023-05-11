@@ -23,7 +23,6 @@ router.get("/", async (req, res) => {
 // get friends
 router.get("/friends/:userId", async (req, res) => {
   try {
-    console.log("Id is:", req.params.userId);
     // Finds the current user by the Id
     const user = await User.findById(req.params.userId);
 
