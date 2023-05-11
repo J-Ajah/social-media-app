@@ -39,14 +39,15 @@ router.post("/register", async (req, res) => {
 
 // Login
 router.post("/login", async (req, res) => {
-  
   try {
-    const user = await User.find({email: req.body.email.toLowerCase() });
+    console.log("Email is: ", req.body.email);
+    const user = await User.find({ email: req.body.email });
     console.log(user);
     if (!user || user.length <= 0) {
       return res.status(404).json("user not found");
     }
     // check if the password is incorrect and send a response to the user
+
     const validPassword = await bcrypt.compare(
       req.body.password,
       user[0].password
@@ -60,6 +61,33 @@ router.post("/login", async (req, res) => {
     return res.status(200).json(user);
   } catch (err) {
     res.status(500).json(err);
+  }
+});
+
+// Password reset route
+
+router.post("/updateUser/:id", async (req, res) => {
+
+  try {
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
+
+    const user = await User.findById(req.params.id);
+  
+    if (!user) {
+      return res.status(404).json("Sorry, user was not found");
+    }
+    if (user && user.email === req.body.email) {
+      // Update the user's password field
+      user.password = hashedPassword;
+      user.save((err) => {
+        if (err) return res.status(400).json("Unable to perform the operation");
+      });
+      return res.status(200).json("User updated successfully");
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json(error);
   }
 });
 
