@@ -10,11 +10,13 @@ const morgan = require("morgan");
 const userRoutes = require("./routes/users");
 const authRoutes = require("./routes/auth");
 const postRoutes = require("./routes/post");
+const messagesRoutes = require("./routes/messages");
+const conversationRoutes = require("./routes/conversations");
 const uploadRoutes = require("./routes/upload");
+
 const path = require("path");
 
 dotenv.config(); // Provides environment variables for the Application process usage.
-
 
 mongoose
   .connect(process.env.MONGO_URL)
@@ -44,6 +46,8 @@ app.use(
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
+app.use("/api/messages", messagesRoutes);
+app.use("/api/conversations", conversationRoutes);
 app.use("/api/upload", uploadRoutes);
 
 app.listen(PORT, () => {
