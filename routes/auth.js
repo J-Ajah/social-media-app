@@ -1,6 +1,10 @@
 const router = require("express").Router();
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
+const fs = require("fs")
+
+const JSEncrypt = require("nodejs-jsencrypt").default;
+
 
 // Register
 router.post("/register", async (req, res) => {
@@ -40,9 +44,18 @@ router.post("/register", async (req, res) => {
 // Login
 router.post("/login", async (req, res) => {
   try {
-    console.log("Email is: ", req.body.email);
+    // Decrypting of user information starts here
+
+    const decrypt = new JSEncrypt();
+    const privateKey = fs.readFileSync("private.pem", "utf8");
+    decrypt.setPrivateKey(privateKey);
+    let decryptedPassword = decrypt.decrypt(req.body.password);
+
+    // Decryption of user information ends here
+
     const user = await User.find({ email: req.body.email });
-    console.log(user);
+
+      
     if (!user || user.length <= 0) {
       return res.status(404).json("user not found");
     }
@@ -60,6 +73,7 @@ router.post("/login", async (req, res) => {
     // Returns the user if everything is okay
     return res.status(200).json(user);
   } catch (err) {
+    console.log(err)
     res.status(500).json(err);
   }
 });
@@ -67,13 +81,12 @@ router.post("/login", async (req, res) => {
 // Password reset route
 
 router.post("/updateUser/:id", async (req, res) => {
-
   try {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.newPassword, salt);
 
     const user = await User.findById(req.params.id);
-  
+
     if (!user) {
       return res.status(404).json("Sorry, user was not found");
     }
